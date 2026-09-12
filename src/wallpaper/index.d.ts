@@ -39,6 +39,8 @@ export interface ReactiveWallpaperAttributes
   'focus-x'?: number | string
   /** Vertical anchor of the cover-fit crop, 0..1 (default 0.5). */
   'focus-y'?: number | string
+  /** CSS px of chrome over the top edge (e.g. a menu bar); pins the frame's top edge below it. */
+  'safe-top'?: number | string
   /** 'auto' (default) arms device tilt on touch devices at the first tap; 'off' disables it. */
   tilt?: 'auto' | 'off'
   /** Degrees of roll for full left-to-right travel (default 20). */

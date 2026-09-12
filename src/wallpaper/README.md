@@ -112,6 +112,7 @@ export function Desktop() {
 | `idle-delay` | `3`     | seconds without movement before drift starts |
 | `focus-x`    | `0.5`   | horizontal anchor (0..1) of the cover-fit crop when the frame aspect doesn't match the element, e.g. a 16:9 frame on a phone |
 | `focus-y`    | `0.5`   | vertical anchor of the crop |
+| `safe-top`   | `0`     | CSS px of chrome over the top edge, such as a menu bar. The frame is fitted below it with its top edge pinned there, so the top of the picture is never hidden; the strip behind the chrome is filled by stretching the frame's top row and the vertical pointer shift is disabled |
 | `tilt`       | `auto`  | `auto` arms device-orientation input on touch devices at the first tap; `off` disables it |
 | `tilt-range` | `20`    | degrees of phone roll for full left-to-right travel |
 

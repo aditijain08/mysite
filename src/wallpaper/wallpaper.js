@@ -13,6 +13,11 @@ const STYLE = `
  *
  * focus-x/y: where the cover-fit crop anchors (0..1) when the frame's aspect
  *            doesn't match the element's, e.g. a 16:9 frame on a phone.
+ * safe-top:  CSS px of chrome overlapping the top (a menu bar). The frame is
+ *            fitted to the area below it with its top edge pinned there, so
+ *            nothing at the top of the frame is hidden; the strip behind the
+ *            chrome is filled by stretching the frame's top row, and the
+ *            vertical pointer shift is disabled (focus-y is ignored).
  * tilt:      "auto" (default) arms device-orientation input on touch devices
  *            at the first tap; "off" leaves it to touch/mouse only.
  *
@@ -22,7 +27,7 @@ const STYLE = `
  */
 export class ReactiveWallpaper extends HTMLElement {
   static get observedAttributes() {
-    return ['src', 'ease', 'parallax', 'drift', 'idle-delay', 'focus-x', 'focus-y', 'tilt', 'tilt-range'];
+    return ['src', 'ease', 'parallax', 'drift', 'idle-delay', 'focus-x', 'focus-y', 'safe-top', 'tilt', 'tilt-range'];
   }
 
   constructor() {
@@ -44,6 +49,7 @@ export class ReactiveWallpaper extends HTMLElement {
     this._loadedFired = false;
     this._parallax = 24;
     this._focus = { x: 0.5, y: 0.5 };
+    this._safeTop = 0;
     this._dpr = 1;
     this._onVisibility = () => (document.hidden ? this._stopLoop() : this._startLoop());
     this._ro = null;
@@ -62,6 +68,7 @@ export class ReactiveWallpaper extends HTMLElement {
     });
     this._parallax = this._num('parallax', 24);
     this._focus = { x: this._num('focus-x', 0.5), y: this._num('focus-y', 0.5) };
+    this._safeTop = Math.max(0, this._num('safe-top', 0));
     this._input.setOptions({ tiltRange: this._num('tilt-range', 20) });
     this._armTilt();
     this._ro = new ResizeObserver(() => this._resize());
@@ -91,6 +98,7 @@ export class ReactiveWallpaper extends HTMLElement {
       case 'parallax': this._parallax = this._num('parallax', 24); this._dirty = true; break;
       case 'focus-x': this._focus.x = this._num('focus-x', 0.5); this._dirty = true; break;
       case 'focus-y': this._focus.y = this._num('focus-y', 0.5); this._dirty = true; break;
+      case 'safe-top': this._safeTop = Math.max(0, this._num('safe-top', 0)); this._dirty = true; break;
       case 'tilt-range': this._input?.setOptions({ tiltRange: this._num('tilt-range', 20) }); break;
       case 'tilt': this._disarmTilt(); this._armTilt(); break;
     }
@@ -212,17 +220,23 @@ export class ReactiveWallpaper extends HTMLElement {
     const ctx = this._ctx, cw = this._canvas.width, ch = this._canvas.height;
     const fw = frame.width, fh = frame.height;
     if (!fw || !fh) return;
-    // cover-fit
-    const cover = Math.max(cw / fw, ch / fh);
+    // cover-fit the area below any top chrome (safe-top)
+    const st = Math.min(ch - 1, this._safeTop * this._dpr);
+    const ah = ch - st;
+    const cover = Math.max(cw / fw, ah / fh);
     // oversize so the parallax shift never exposes an edge
     const par = this._parallax * this._dpr;
-    const over = 1 + (2 * par) / Math.min(cw, ch);
+    const over = 1 + (2 * par) / Math.min(cw, ah);
     const s = cover * over;
     const dw = fw * s, dh = fh * s;
     // Anchor the crop at the focus point; the `par` margin on each side is
     // what the pointer shift moves through, so no edge is ever exposed.
     const dx = (cw - dw + 2 * par) * this._focus.x - par - x * par;
-    const dy = (ch - dh + 2 * par) * this._focus.y - par - y * par;
+    // With safe-top the frame's top edge is pinned just below the chrome and
+    // does not shift vertically, so the top of the picture is never hidden.
+    const dy = st > 0 ? st : (ch - dh + 2 * par) * this._focus.y - par - y * par;
     ctx.drawImage(frame, dx, dy, dw, dh);
+    // Fill the strip behind the chrome by stretching the frame's top row.
+    if (dy > 0) ctx.drawImage(frame, 0, 1, fw, 1, dx, 0, dw, dy + 1);
   }
 }

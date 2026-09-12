@@ -1110,7 +1110,7 @@ export default function App() {
       {WALLPAPER === 'video' && (
         // Fills the root; publishes --wp-x / --wp-y on the root for any layer
         // that wants to parallax against it (see src/wallpaper/README.md).
-        <reactive-wallpaper src="/wallpaper/manifest.json" parallax="20" drift="false" />
+        <reactive-wallpaper src="/wallpaper/manifest.json" parallax="20" drift="false" safe-top={fullscreenId ? 0 : 28} />
       )}
       {WALLPAPER === 'nature' && (
       <div ref={wallpaperRef} style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
