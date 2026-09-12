@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap');
+
+@import 'tailwindcss';
+
+/* Theme palette — raw values live here as plain custom properties (not inside
+   @theme) so they can be swapped per [data-theme] while @theme's --color-*
+   tokens just point at them. Light is the default: it reads better against
+   the current wallpaper than the old dark-only chrome did. */
+:root {
+  --t-canvas: #FAF8F3;
+  --t-ink: #221E17;
+  --t-gold: #A8813F;
+  --t-gold-dim: #C9A86C;
+  --t-dim: #7A7364;
+  --t-panel: #F1ECDF;
+  --t-panel2: #EAE2D0;
+}
+
+:root[data-theme='dark'] {
+  --t-canvas: #0B0B0A;
+  --t-ink: #EDEAD9;
+  --t-gold: #C9A86C;
+  --t-gold-dim: #7A6540;
+  --t-dim: #676760;
+  --t-panel: #131312;
+  --t-panel2: #1A1A18;
+}
+
+@theme {
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', 'Courier New', monospace;
+
+  --color-canvas: var(--t-canvas);
+  --color-ink: var(--t-ink);
+  --color-gold: var(--t-gold);
+  --color-gold-dim: var(--t-gold-dim);
+  --color-dim: var(--t-dim);
+  --color-panel: var(--t-panel);
+  --color-panel2: var(--t-panel2);
+}
+
+/* Fraunces ships a WONK axis that swaps in decorative alternate letterforms
+   (most visibly a heavily curled "J") at larger optical sizes. Browsers pick
+   different implicit values for it, so Chromium renders a restrained "J"
+   while WebKit/Safari renders a pronounced swash from identical CSS. Pin it
+   off explicitly so headings render the same glyph shapes everywhere. */
+.font-display {
+  font-optical-sizing: none;
+  font-variation-settings: 'WONK' 0, 'opsz' 20;
+}
+
+html {
+  background-color: var(--t-canvas);
+  color: var(--t-ink);
+  font-family: 'Instrument Sans', system-ui, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* A thin, tasteful scrollbar everywhere — content that scrolls should show
+   it. (Previously this rule hid every scrollbar site-wide with no
+   substitute affordance; that's what's being fixed here.) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--t-ink) 25%, transparent) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--t-ink) 25%, transparent);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--t-ink) 40%, transparent);
+}
+
+/* Visible keyboard-focus indicator — previously nothing in the app showed
+   focus at all, so keyboard/switch users had no way to tell what was
+   selected. Only shows for keyboard focus (:focus-visible), not mouse
+   clicks, so it doesn't add visual noise to normal pointer use. */
+:focus-visible {
+  outline: 2px solid #C9A86C;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.75; }
+}
+
+@keyframes cloudDrift {
+  0% { transform: translateX(-16px); }
+  100% { transform: translateX(16px); }
+}
+
+@keyframes firefly {
+  0%, 100% { transform: translate(0, 0); opacity: 0.2; }
+  25% { transform: translate(6px, -8px); opacity: 0.9; }
+  50% { transform: translate(-4px, -4px); opacity: 0.4; }
+  75% { transform: translate(5px, 3px); opacity: 0.85; }
+}
+
+@keyframes birdFly {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(140px, -36px); }
+}
+
+@keyframes birdFlap {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.55); }
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--t-gold) 13%, transparent);
+  color: var(--t-ink);
+}
+
