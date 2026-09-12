@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import DesktopWindow from './components/DesktopWindow'
 import MobileShell from './components/MobileShell'
+import './wallpaper' // registers <reactive-wallpaper>; see src/wallpaper/README.md
 import Process from './pages/Process'
 import About from './pages/About'
 import Resume from './pages/Resume'
@@ -27,6 +28,12 @@ export type AppId = 'cursor' | 'figma' | 'notes' | 'about' | 'mail' | 'claude' |
 interface WinState { open: boolean; zIndex: number }
 
 const BASE_Z = 10
+
+// ─── Wallpaper choice ────────────────────────────────────────────────────────
+// 'video': the AI-generated street clip in public/wallpaper, scrubbed by the
+//          cursor (see src/wallpaper/README.md to regenerate it from a new clip).
+// 'nature': the hand-built dawn/day/dusk/night scene below.
+const WALLPAPER: 'video' | 'nature' = 'video'
 
 // ─── Wallpaper: a nature scene that lives on the real clock ────────────────
 // Sky + sun/moon shift through dawn/day/dusk/night like macOS Tahoe's own
@@ -1100,6 +1107,12 @@ export default function App() {
       {/* ── Sky — full-bleed behind everything, so the menu bar and dock's ── */}
       {/* Liquid Glass genuinely blurs the scene instead of a flat patch,   */}
       {/* matching how a real macOS wallpaper sits behind the whole screen. */}
+      {WALLPAPER === 'video' && (
+        // Fills the root; publishes --wp-x / --wp-y on the root for any layer
+        // that wants to parallax against it (see src/wallpaper/README.md).
+        <reactive-wallpaper src="/wallpaper/manifest.json" parallax="20" drift="false" />
+      )}
+      {WALLPAPER === 'nature' && (
       <div ref={wallpaperRef} style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
         {/* Sky — shifts through dawn/day/dusk/night on the real clock, like macOS Tahoe's own dynamic wallpaper */}
         <div style={{ position: 'absolute', inset: 0, background: PERIOD_STYLES[period].sky, transition: 'background 1.5s ease' }} />
@@ -1228,6 +1241,7 @@ export default function App() {
           <rect width="100%" height="100%" filter="url(#wGrain)"/>
         </svg>
       </div>
+      )}
 
       {/* ── Menu bar ── */}
       {/* Hidden in fullscreen, matching real macOS — the fullscreen window owns the whole screen. */}

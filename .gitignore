@@ -4,3 +4,6 @@ dist
 *.local
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+
+# reactive wallpaper source clip (frames are committed, the mp4 is not)
+public/wallpaper/source.mp4

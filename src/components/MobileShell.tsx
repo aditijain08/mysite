@@ -7,6 +7,7 @@ import {
 import { squircleClipPath } from './squircle'
 import { glassStyle } from './liquidGlass'
 import { useTheme } from '../theme'
+import '../wallpaper' // registers <reactive-wallpaper>; see src/wallpaper/README.md
 import About from '../pages/About'
 import Resume from '../pages/Resume'
 import Contact from '../pages/Contact'
@@ -145,9 +146,13 @@ function HomeScreen({ onOpen, onHomeGesture, onGoHome }: { onOpen: (id: AppId) =
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#05050C', display: 'flex', flexDirection: 'column', fontFamily: '-apple-system, system-ui, sans-serif' }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 130% 55% at 20% 100%, #0D5A7A 0%, #0A2E52 28%, transparent 62%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 90% 45% at 85% 0%, #5A1045 0%, transparent 55%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 35% at 50% 40%, rgba(201,168,108,0.05) 0%, transparent 65%)', pointerEvents: 'none' }} />
+      {/* Same street clip as the desktop. The 16:9 frame is cropped to the
+          phone with the character kept in view (focus-x); the phone's tilt
+          scrubs it once the first tap grants motion access, a finger drag
+          scrubs it otherwise. */}
+      <reactive-wallpaper src="/wallpaper/manifest.json" parallax="14" focus-x="0.62" drift="false" />
+      {/* Scrim so the status bar and name stay legible over the photo */}
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(5,5,12,0.55) 0%, rgba(5,5,12,0.15) 22%, transparent 45%, rgba(5,5,12,0.45) 100%)', pointerEvents: 'none' }} />
 
       <StatusBar />
 
