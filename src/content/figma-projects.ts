@@ -29,4 +29,17 @@ export const figmaProjects: FigmaProject[] = [
     linkLabel: 'Open in Figma',
     featured: true,
   },
+  {
+    id: 'haptik-chatbot-usability',
+    name: 'Haptik · Support Chatbot Usability',
+    company: 'Jio Haptik · Conversational AI',
+    tags: ['Conversational AI', 'Chatbot', 'Usability'],
+    description: "Improved the discovery, engagement, and usability of Haptik's support chatbot, embedded on client websites and apps to resolve user queries. Ran moderated usability testing, user interviews, and stakeholder focus groups (founders, marketing, sales) to surface discovery and engagement gaps hurting task completion and CSAT. Delivered a more user-friendly chat interface and a unified chat design system for consistency. Lead Designer · 6 months · with Asis Panda (Design Manager), Nikunj Sharma (PM), 3 engineers, 2 engineering managers, 1 QA.",
+    outcome: '36% increase in conversations, 15% longer session durations, 15% higher query resolution (task completion).',
+    color: '#5FB0C9',
+    frames: ['Old Design', 'New Design'],
+    linkUrl: '#',
+    linkLabel: 'Open in Figma',
+    featured: true,
+  },
 ]

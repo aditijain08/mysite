@@ -355,7 +355,7 @@ function FigmaWindowContent() {
             <div key={t} style={{ padding: '6px 10px', fontSize: '0.6875rem', color: i === 0 ? text : dim, borderBottom: i === 0 ? `2px solid ${purple}` : '2px solid transparent' }}>{t}</div>
           ))}
         </div>
-        <div style={{ padding: '4px 0 6px' }}>
+        <div style={{ padding: '4px 0 80px' }}>
           {PRODUCTS.map(product => {
             const files = figmaFiles.filter(f => f.product === product)
             if (files.length === 0) return null
@@ -391,7 +391,7 @@ function FigmaWindowContent() {
         <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(circle, ${isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)'} 1px, transparent 1px)`, backgroundSize: '20px 20px', pointerEvents: 'none' }} />
         <div style={{ position: 'relative', padding: 18 }}>
           <p style={{ fontSize: '0.6875rem', color: dim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>{activePage}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 28, maxWidth: 560 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 28, width: 'clamp(360px, 70%, 900px)' }}>
             {CASE_STUDY_SECTIONS.map(({ key, label }) => {
               const body = caseStudy[key]
               return (

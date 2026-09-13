@@ -1,9 +1,12 @@
 export type FigmaFileKind = 'fig' | 'make' | 'deck' | 'pdf' | 'jam'
 
 // Real Birdeye/Canonic products — every file below belongs to exactly one.
+// 'Inbox' is a real product but has no files documented yet; left out of
+// PRODUCTS until there's something to show, otherwise its section renders
+// empty and the scroll list looks like it dead-ends after Reviews.
 export type Product = 'Listings' | 'Reviews' | 'Inbox' | 'Canonic'
 
-export const PRODUCTS: Product[] = ['Listings', 'Reviews', 'Inbox', 'Canonic']
+export const PRODUCTS: Product[] = ['Listings', 'Reviews', 'Canonic']
 
 export interface FigmaFileEntry {
   id: string
@@ -43,6 +46,8 @@ interface RawEntry {
   url?: string
   coverImage?: string
   summary?: string
+  outcome?: string
+  duration?: string
   productUnconfirmed?: boolean
 }
 
@@ -135,7 +140,18 @@ const NAMES: RawEntry[] = [
   },
 
   // ── Canonic ──
-  { name: 'Canonic Core Style Guide', kind: 'fig', product: 'Canonic' },
+  {
+    name: 'Canonic Core Style Guide', kind: 'fig', product: 'Canonic',
+    summary: "Design system for Canonic's low-code frontend builder component library — a standardized style guide plus every component's states, variants, and configuration options.",
+    outcome: 'Reduced number of bugs, better-looking final UI screens, and easier configuration and overrides.',
+    duration: '3 months',
+  },
+  {
+    name: 'Canonic Billing & Payments', kind: 'fig', product: 'Canonic',
+    summary: "End-to-end billing and payments experience for Canonic's freemium plans — billing dashboard, Stripe checkout, invoice management, and pricing page — built from user, stakeholder, sales, and support research.",
+    outcome: 'A self-serve billing flow letting users select, modify, and cancel plans with full support, built to drive revenue growth and user satisfaction.',
+    duration: '1 month',
+  },
 ]
 
 export const figmaFiles: FigmaFileEntry[] = NAMES.map((n, i) => ({
@@ -147,6 +163,8 @@ export const figmaFiles: FigmaFileEntry[] = NAMES.map((n, i) => ({
   url: n.url ?? BIRDEYE_FOLDER_URL,
   coverImage: n.coverImage,
   summary: n.summary,
+  outcome: n.outcome,
+  duration: n.duration,
   productUnconfirmed: n.productUnconfirmed,
 }))
 
