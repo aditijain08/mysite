@@ -20,7 +20,7 @@ export interface FeaturedProject extends BaseProject {
 // link-out cards for the Work page.
 export function featuredProjects(): FeaturedProject[] {
   return [
-    ...cursorProjects.filter((p) => p.featured).map((p) => ({ ...p, medium: 'Cursor' as const })),
-    ...figmaProjects.filter((p) => p.featured).map((p) => ({ ...p, medium: 'Figma' as const })),
+    ...cursorProjects.filter((p) => p.featured && !p.hidden).map((p) => ({ ...p, medium: 'Cursor' as const })),
+    ...figmaProjects.filter((p) => p.featured && !p.hidden).map((p) => ({ ...p, medium: 'Figma' as const })),
   ]
 }

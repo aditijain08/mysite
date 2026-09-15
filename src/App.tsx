@@ -184,13 +184,13 @@ function CursorWindowContent() {
                 <span style={{ fontSize: '0.625rem' }}>{isCollapsed ? '▶' : '▼'}</span>
                 <span>{group.label}</span>
               </div>
-              {!isCollapsed && cursorProjects.filter(p => p.group === group.id).map(p => treeItem(p, 24))}
+              {!isCollapsed && cursorProjects.filter(p => p.group === group.id && !p.hidden).map(p => treeItem(p, 24))}
             </div>
           )
         })}
       </div>
       {/* Editor */}
-      <div style={{ display: 'flex', flexDirection: 'column', background: editorBg }}>
+      <div style={{ display: 'flex', flexDirection: 'column', background: editorBg, minWidth: 0 }}>
         {/* Tabs — horizontally scrollable, only currently-open files, each closable */}
         <div style={{ background: tabsBg, display: 'flex', borderBottom: `1px solid ${border}`, flexShrink: 0, overflowX: 'auto' }}>
           {openFiles.map((file) => {
@@ -211,7 +211,7 @@ function CursorWindowContent() {
         </div>
         {/* Document */}
         {proj ? (
-          <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1, lineHeight: 1.7 }}>
+          <div style={{ padding: '20px 24px', overflowY: 'auto', overflowX: 'hidden', flex: 1, minWidth: 0, lineHeight: 1.7, wordBreak: 'break-word' }}>
             <p style={{ fontSize: '0.8125rem', color: proj.color, marginBottom: 4 }}>{`# ${proj.name}`}</p>
             <p style={{ fontSize: '0.6875rem', color: dim, marginBottom: 12 }}>{proj.company}</p>
             <div style={{ display: 'flex', gap: 5, marginBottom: 14, flexWrap: 'wrap' }}>
@@ -219,6 +219,16 @@ function CursorWindowContent() {
                 <span key={t} style={{ fontSize: '0.625rem', color: proj.color, border: `1px solid ${proj.color}44`, borderRadius: 3, padding: '1px 6px' }}>{t}</span>
               ))}
             </div>
+            {(proj.role || proj.team || proj.timeline || proj.status) && (
+              <p style={{ fontSize: '0.6875rem', color: dim, marginBottom: 12 }}>
+                {[
+                  proj.role && `Role: ${proj.role}`,
+                  proj.team && `Team: ${proj.team}`,
+                  proj.timeline && `Timeline: ${proj.timeline}`,
+                  proj.status && `Status: ${proj.status}`,
+                ].filter(Boolean).join('  ·  ')}
+              </p>
+            )}
             <p style={{ fontSize: '0.875rem', color: body6, marginBottom: 16, fontStyle: 'italic' }}>{proj.description}</p>
 
             <p style={{ fontSize: '0.625rem', color: dim, marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.1em' }}>## Outcome</p>
@@ -231,27 +241,7 @@ function CursorWindowContent() {
               </>
             )}
 
-            {proj.process && (
-              <>
-                <p style={{ fontSize: '0.625rem', color: dim, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.1em' }}>## Process</p>
-                {([
-                  ['intentMapping', 'Intent mapping'],
-                  ['decisionFlow', 'Decision flow'],
-                  ['edgeCases', 'Edge cases'],
-                ] as const).map(([key, label]) => (
-                  <div key={key} style={{ marginBottom: 10, paddingLeft: 8, borderLeft: `1px solid ${proj.color}33` }}>
-                    <p style={{ fontSize: '0.6875rem', color: proj.color, marginBottom: 2 }}>{label}</p>
-                    {proj.process![key] ? (
-                      <p style={{ fontSize: '0.8125rem', color: body55 }}>{proj.process![key]}</p>
-                    ) : (
-                      <p style={{ fontSize: '0.8125rem', color: dim, fontStyle: 'italic' }}>Not documented yet</p>
-                    )}
-                  </div>
-                ))}
-              </>
-            )}
-
-            <p style={{ fontSize: '0.625rem', color: dim, marginBottom: 8, marginTop: 14, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{proj.process ? '## Solution' : '## What I built'}</p>
+            <p style={{ fontSize: '0.625rem', color: dim, marginBottom: 8, marginTop: 14, textTransform: 'uppercase', letterSpacing: '0.1em' }}>## What I built</p>
             {proj.detail.map((d, i) => (
               <p key={i} style={{ fontSize: '0.8125rem', color: body55, marginBottom: 5, paddingLeft: 8, borderLeft: `1px solid ${proj.color}33` }}>{d}</p>
             ))}
@@ -352,6 +342,16 @@ function FigmaWindowContent() {
 
   const toggleProduct = (p: string) => setCollapsed(c => ({ ...c, [p]: !c[p] }))
   const caseStudy: ProductCaseStudy = PRODUCT_CASE_STUDIES[activePage] ?? {}
+  // Each file can carry its own case study (problem/summary/outcome, pulled
+  // verbatim from its write-up); fall back to the shared per-product
+  // narrative above when a file doesn't have its own — most files don't.
+  const fileOverview = file.detail && file.detail.length >= 2 ? `${file.detail[0]}. ${file.detail[1]}` : undefined
+  const sections: Record<keyof ProductCaseStudy, string | undefined> = {
+    overview: fileOverview ?? caseStudy.overview,
+    problem: file.problem ?? caseStudy.problem,
+    solution: file.summary ?? caseStudy.solution,
+    outcome: file.outcome ?? caseStudy.outcome,
+  }
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: SHOW_RHS ? `${lhsWidth}px 6px 1fr 6px ${rhsWidth}px` : `${lhsWidth}px 6px 1fr`, height: '100%', fontFamily: '-apple-system, system-ui, sans-serif' }}>
@@ -364,7 +364,9 @@ function FigmaWindowContent() {
         </div>
         <div style={{ padding: '4px 0 80px' }}>
           {PRODUCTS.map(product => {
-            const files = figmaFiles.filter(f => f.product === product)
+            // Files without a real write-up yet (no `outcome`) stay in the
+            // data but out of the sidebar until they're filled in.
+            const files = figmaFiles.filter(f => f.product === product && f.outcome)
             if (files.length === 0) return null
             const isCollapsed = collapsed[product]
             const isActivePage = product === activePage
@@ -397,10 +399,20 @@ function FigmaWindowContent() {
       <div style={{ background: canvas, position: 'relative', overflow: 'auto' }}>
         <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(circle, ${isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)'} 1px, transparent 1px)`, backgroundSize: '20px 20px', pointerEvents: 'none' }} />
         <div style={{ position: 'relative', padding: 18 }}>
-          <p style={{ fontSize: '0.6875rem', color: dim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>{activePage}</p>
+          <p style={{ fontSize: '0.6875rem', color: dim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>{activePage} · {file.name}</p>
+          {(file.role || file.team || file.duration || file.status) && (
+            <p style={{ fontSize: '0.6875rem', color: dim, marginBottom: 14, width: 'clamp(360px, 70%, 900px)' }}>
+              {[
+                file.role && `Role: ${file.role}`,
+                file.team && `Team: ${file.team}`,
+                file.duration && `Timeline: ${file.duration}`,
+                file.status && `Status: ${file.status}`,
+              ].filter(Boolean).join('  ·  ')}
+            </p>
+          )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 28, width: 'clamp(360px, 70%, 900px)' }}>
             {CASE_STUDY_SECTIONS.map(({ key, label }) => {
-              const body = caseStudy[key]
+              const body = sections[key]
               return (
                 <div key={key}>
                   <span style={{ fontSize: '0.625rem', color: dim, display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</span>
@@ -924,15 +936,16 @@ function DesktopIcon({ icon, label, sub, onClick, isFile }: { icon: React.ReactN
 
 // ─── Main App — Desktop shell ─────────────────────────────────────────────────
 
+// Photos and Notes are temporarily hidden from the dock (site-wide) — see
+// the desktop icon grid below too. Their AppId, window content, and styling
+// are left intact so they can be switched back on later.
 const DOCK_APPS: { id: AppId; label: string }[] = [
   { id: 'cursor', label: 'Cursor'  },
   { id: 'figma',  label: 'Figma'   },
-  { id: 'notes',  label: 'Notes'   },
   { id: 'about',  label: 'Aditi'   },
   { id: 'resume', label: 'Resume'  },
   { id: 'mail',   label: 'Mail'    },
   { id: 'claude', label: 'Claude'  },
-  { id: 'photos', label: 'Photos'  },
 ]
 
 function DockIcon({ id }: { id: AppId }) {
@@ -1100,6 +1113,9 @@ export default function App() {
   const menuText = isDark ? 'rgba(255,255,255,0.9)' : 'rgba(34,30,23,0.88)'
   const menuTextDim = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(34,30,23,0.5)'
   const menuIcon = isDark ? '#fff' : '#2A2520'
+  // Freeze the wallpaper wherever it is while any window is open, rather
+  // than scrubbing behind content the user is actually looking at.
+  const anyAppOpen = Object.values(wins).some(w => w.open)
 
   return (
     <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', position: 'fixed', inset: 0, fontFamily: '-apple-system, system-ui, sans-serif', userSelect: 'none' }}>
@@ -1110,7 +1126,7 @@ export default function App() {
       {WALLPAPER === 'video' && (
         // Fills the root; publishes --wp-x / --wp-y on the root for any layer
         // that wants to parallax against it (see src/wallpaper/README.md).
-        <reactive-wallpaper src="/wallpaper/manifest.json" parallax="20" drift="false" safe-top={fullscreenId ? 0 : 28} />
+        <reactive-wallpaper src="/wallpaper/manifest.json" parallax="20" drift="false" safe-top={fullscreenId ? 0 : 28} paused={anyAppOpen ? 'true' : 'false'} />
       )}
       {WALLPAPER === 'nature' && (
       <div ref={wallpaperRef} style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
@@ -1333,24 +1349,27 @@ export default function App() {
       {/* ── Desktop — icons, windows, watermark, positioned within the working area ── */}
       {/* Expands to the full viewport in fullscreen, since the menu bar/dock it normally leaves room for are hidden. Fully transparent — the sky layer behind it shows through. */}
       <div style={{ position: 'absolute', top: fullscreenId ? 0 : 28, left: 0, right: 0, bottom: fullscreenId ? 0 : 72, overflow: 'hidden' }}>
-        {/* Desktop icons — 2-column grid, recruiter-journey order */}
+        {/* Desktop icons — single column: Cursor → Figma → About. Resume,
+            Mail, and Claude stay reachable from the Dock below rather than
+            as desktop icons; Photos and Notes are hidden site-wide (see
+            DOCK_APPS comment above). */}
         <div style={{ position: 'absolute', top: 12, right: 14, display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 0 }}>
-          {/* Column 1: Cursor → About → Notes → Mail */}
+          {/* Notes icon hidden for now (see DOCK_APPS comment above) —
+              <DesktopIcon icon={<IconNotes />} label="Notes" sub="Process" onClick={() => openApp('notes')} /> */}
+          {/* Photos icon hidden for now (see DOCK_APPS comment above) —
+              <DesktopIcon icon={<IconPhotos />} label="Photos" sub="Creative" onClick={() => openApp('photos')} /> */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             <DesktopIcon icon={<IconCursor />} label="Cursor"    sub="Code work"   onClick={() => openApp('cursor')} />
-            <DesktopIcon icon={<IconAditi />}  label="Aditi.app" sub="About"       onClick={() => openApp('about')} />
-            <DesktopIcon icon={<IconNotes />}  label="Notes"     sub="Process"     onClick={() => openApp('notes')} />
-            <DesktopIcon icon={<IconMail />}   label="Mail"      sub="Contact"     onClick={() => openApp('mail')} />
-          </div>
-          {/* Column 2: Figma → resume.pdf → Claude → Photos */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             <DesktopIcon icon={<IconFigma />}  label="Figma"     sub="Design work" onClick={() => openApp('figma')} />
-            <div style={{ height: 6 }} />
-            <DesktopIcon icon={<IconPDF />}    label="resume.pdf"                  onClick={() => openApp('resume')} isFile />
-            <div style={{ height: 6 }} />
-            <DesktopIcon icon={<IconClaude />} label="Claude"    sub="Ask me"      onClick={() => openApp('claude')} />
-            <DesktopIcon icon={<IconPhotos />} label="Photos"    sub="Creative"    onClick={() => openApp('photos')} />
+            <DesktopIcon icon={<IconAditi />}  label="Aditi.app" sub="About"       onClick={() => openApp('about')} />
           </div>
+          {/* Mail icon hidden from the desktop grid (see comment above) —
+              still reachable from the Dock —
+              <DesktopIcon icon={<IconMail />} label="Mail" sub="Contact" onClick={() => openApp('mail')} /> */}
+          {/* resume.pdf and Claude icons hidden from the desktop grid (see
+              comment above) — still reachable from the Dock —
+              <DesktopIcon icon={<IconPDF />} label="resume.pdf" onClick={() => openApp('resume')} isFile />
+              <DesktopIcon icon={<IconClaude />} label="Claude" sub="Ask me" onClick={() => openApp('claude')} /> */}
         </div>
 
         {/* ── Open windows ── */}

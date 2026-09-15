@@ -27,7 +27,7 @@ const STYLE = `
  */
 export class ReactiveWallpaper extends HTMLElement {
   static get observedAttributes() {
-    return ['src', 'ease', 'parallax', 'drift', 'idle-delay', 'focus-x', 'focus-y', 'safe-top', 'tilt', 'tilt-range'];
+    return ['src', 'ease', 'parallax', 'drift', 'idle-delay', 'focus-x', 'focus-y', 'safe-top', 'tilt', 'tilt-range', 'paused'];
   }
 
   constructor() {
@@ -51,7 +51,7 @@ export class ReactiveWallpaper extends HTMLElement {
     this._focus = { x: 0.5, y: 0.5 };
     this._safeTop = 0;
     this._dpr = 1;
-    this._onVisibility = () => (document.hidden ? this._stopLoop() : this._startLoop());
+    this._onVisibility = () => this._syncLoop();
     this._ro = null;
     // Device tilt needs a user gesture on iOS, so it is requested on the
     // first tap/click after connect (coarse-pointer devices only).
@@ -76,7 +76,7 @@ export class ReactiveWallpaper extends HTMLElement {
     this._resize();
     document.addEventListener('visibilitychange', this._onVisibility);
     if (this.hasAttribute('src')) this._load(this.getAttribute('src'));
-    this._startLoop();
+    this._syncLoop();
   }
 
   disconnectedCallback() {
@@ -101,6 +101,7 @@ export class ReactiveWallpaper extends HTMLElement {
       case 'safe-top': this._safeTop = Math.max(0, this._num('safe-top', 0)); this._dirty = true; break;
       case 'tilt-range': this._input?.setOptions({ tiltRange: this._num('tilt-range', 20) }); break;
       case 'tilt': this._disarmTilt(); this._armTilt(); break;
+      case 'paused': this._syncLoop(); break;
     }
   }
 
@@ -191,6 +192,15 @@ export class ReactiveWallpaper extends HTMLElement {
     if (this._raf) cancelAnimationFrame(this._raf);
     this._raf = 0;
   }
+  /**
+   * Freezes the current frame in place (no reset) while hidden or paused.
+   * Runs regardless, until the first frame is drawn, so starting paused
+   * (e.g. a window already open on load) doesn't leave the canvas blank.
+   */
+  _syncLoop() {
+    if (!this._ready || (!document.hidden && !this._bool('paused', false))) this._startLoop();
+    else this._stopLoop();
+  }
 
   _tick(t) {
     const dt = t - this._lastTime; this._lastTime = t;
@@ -206,6 +216,7 @@ export class ReactiveWallpaper extends HTMLElement {
     if (!this._ready) {
       this._ready = true;
       this.dispatchEvent(new CustomEvent('ready', { bubbles: true }));
+      this._syncLoop();
     }
   }
 

@@ -8,16 +8,16 @@ const creativeItems = [
     alt: 'Hand-painted sneaker featuring Hokusai\'s The Great Wave off Kanagawa',
   },
   {
-    label: 'Photography',
-    descriptor: 'Street & portrait',
-    img: 'https://images.unsplash.com/photo-1495745966610-2a67f2297e5e?w=600&h=600&fit=crop&auto=format&q=80',
-    alt: 'Photography work',
-  },
-  {
     label: 'Music',
     descriptor: 'Guitar & vocals',
-    img: 'https://images.unsplash.com/photo-1621784166258-c6fdfff31879?w=600&h=600&fit=crop&auto=format&q=80',
-    alt: 'Playing guitar',
+    img: '/photos/aditi-guitar.jpeg',
+    alt: 'Aditi playing acoustic guitar',
+  },
+  {
+    label: 'Photography',
+    descriptor: 'Street & portrait',
+    img: '/photos/aditi-sunset.jpeg',
+    alt: 'Sunset over the sea, shot by Aditi',
   },
 ]
 
@@ -52,10 +52,11 @@ export default function About({ navigate }: AboutProps) {
               system that's probabilistic, adaptive, and occasionally wrong in interesting ways.
             </p>
             <p className="text-ink/80 text-base leading-relaxed">
-              My background is in facilitation before it was in design. I spent years running
-              Google-style Design Sprints across teams that couldn't agree on what to build next.
-              That instinct (create the conditions, don't author the answer) still drives how I
-              work. AI and code just gave it a sharper edge.
+              My background is in facilitation as much as it is in design. I run Google-style
+              Design Sprints to get teams unstuck on what to build next, and I treat figuring out
+              which problem is worth solving as part of that facilitation, not a separate step
+              before it. Create the conditions, don't author the answer. AI and code just gave
+              that instinct a sharper edge.
             </p>
           </div>
         </div>
@@ -141,7 +142,7 @@ export default function About({ navigate }: AboutProps) {
         </section>
 
         {/* Creative Practice */}
-        <section className="mb-20">
+        <section className="mb-20 border-t border-ink/8 pt-14">
           <div className="mb-10">
             <h2 className="font-display font-light text-3xl text-ink mb-3">
               Outside the work
@@ -213,7 +214,7 @@ export default function About({ navigate }: AboutProps) {
         </section>
 
         {/* Contact CTA */}
-        <div className="border-t border-ink/8 pt-14 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <p className="font-display font-light text-2xl md:text-3xl text-ink mb-1">
               Want to work together?

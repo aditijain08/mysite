@@ -115,6 +115,7 @@ export function Desktop() {
 | `safe-top`   | `0`     | CSS px of chrome over the top edge, such as a menu bar. The frame is fitted below it with its top edge pinned there, so the top of the picture is never hidden; the strip behind the chrome is filled by stretching the frame's top row and the vertical pointer shift is disabled |
 | `tilt`       | `auto`  | `auto` arms device-orientation input on touch devices at the first tap; `off` disables it |
 | `tilt-range` | `20`    | degrees of phone roll for full left-to-right travel |
+| `paused`     | `false` | while true, the render loop is frozen at the current frame (position isn't reset on resume) |
 
 All attributes can be changed live.
 
@@ -164,6 +165,7 @@ itself **and on its parent element**, so siblings can use them:
 - **Touch and tilt.** Device orientation drives the wallpaper on phones once
   granted (see above); a one-finger drag is the fallback.
 - **Hidden tab.** The render loop pauses.
+- **`paused` attribute.** Same effect as a hidden tab, but under your control — set it `true` while, say, a window is open on top of the wallpaper.
 - **Failures.** A frame that fails twice is skipped; the nearest-frame rule
   covers the gap.
 

@@ -13,20 +13,24 @@ import Resume from '../pages/Resume'
 import Contact from '../pages/Contact'
 
 
-// ─── App roster — same 8 apps as the desktop dock, iOS-home-screen order ──────
+// ─── App roster — same apps as the desktop dock, iOS-home-screen order ────────
+// Photos and Notes are temporarily hidden site-wide (see App.tsx's DOCK_APPS
+// comment); their icons, screens, and AppIds are left in place to switch
+// back on later —
+// { id: 'photos', label: 'Photos', icon: (s) => <IconPhotos size={s} /> },
+// { id: 'notes',  label: 'Notes',  icon: (s) => <IconNotes size={s} /> },
 
 const APPS: { id: AppId; label: string; icon: (s: number) => React.ReactNode }[] = [
-  { id: 'about',  label: 'Aditi',   icon: (s) => <IconAditi size={s} /> },
   { id: 'cursor', label: 'Cursor',  icon: (s) => <IconCursor size={s} /> },
   { id: 'figma',  label: 'Figma',   icon: (s) => <IconFigma size={s} /> },
-  { id: 'notes',  label: 'Notes',   icon: (s) => <IconNotes size={s} /> },
+  { id: 'about',  label: 'Aditi',   icon: (s) => <IconAditi size={s} /> },
   { id: 'mail',   label: 'Mail',    icon: (s) => <IconMail size={s} /> },
   { id: 'resume', label: 'Resume',  icon: (s) => <IconPDF size={s} /> },
   { id: 'claude', label: 'Claude',  icon: (s) => <IconClaude size={s} /> },
-  { id: 'photos', label: 'Photos',  icon: (s) => <IconPhotos size={s} /> },
 ]
 
-const DOCK_IDS: AppId[] = ['about', 'resume', 'mail', 'claude']
+// Bottom dock, left to right: Claude, Resume, Mail.
+const DOCK_IDS: AppId[] = ['claude', 'resume', 'mail']
 
 const APP_TITLE: Record<AppId, string> = {
   cursor: 'Cursor', figma: 'Figma', notes: 'Notes', about: 'Aditi',
@@ -223,10 +227,9 @@ function MobileWork() {
   const body55 = isDark ? 'rgba(224,221,214,0.55)' : 'rgba(30,30,30,0.6)'
   const body6 = isDark ? 'rgba(224,221,214,0.6)' : 'rgba(30,30,30,0.65)'
   const body85 = isDark ? 'rgba(224,221,214,0.85)' : 'rgba(30,30,30,0.85)'
-  const body35 = isDark ? 'rgba(224,221,214,0.35)' : 'rgba(30,30,30,0.4)'
   return (
     <div style={{ padding: '16px 16px 24px' }}>
-      {codeProjects.map(p => (
+      {codeProjects.filter(p => !p.hidden).map(p => (
         <div key={p.file} style={{ ...glassStyle({ radius: 16, dark: isDark }), padding: '18px 18px 20px', marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color }} />
@@ -250,27 +253,7 @@ function MobileWork() {
             </>
           )}
 
-          {p.process && (
-            <>
-              <p style={{ fontSize: '0.6875rem', color: body4, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Process</p>
-              {([
-                ['intentMapping', 'Intent mapping'],
-                ['decisionFlow', 'Decision flow'],
-                ['edgeCases', 'Edge cases'],
-              ] as const).map(([key, label]) => (
-                <div key={key} style={{ marginBottom: 8, paddingLeft: 10, borderLeft: `2px solid ${p.color}33` }}>
-                  <p style={{ fontSize: '0.75rem', color: p.color, marginBottom: 2 }}>{label}</p>
-                  {p.process![key] ? (
-                    <p style={{ fontSize: '0.875rem', color: body6 }}>{p.process![key]}</p>
-                  ) : (
-                    <p style={{ fontSize: '0.875rem', color: body35, fontStyle: 'italic' }}>Not documented yet</p>
-                  )}
-                </div>
-              ))}
-            </>
-          )}
-
-          <p style={{ fontSize: '0.6875rem', color: body4, textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 10, marginBottom: 6 }}>{p.process ? 'Solution' : 'What I built'}</p>
+          <p style={{ fontSize: '0.6875rem', color: body4, textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 10, marginBottom: 6 }}>What I built</p>
           {p.detail.map((d, i) => (
             <p key={i} style={{ fontSize: '0.875rem', color: body6, lineHeight: 1.5, marginBottom: 6, paddingLeft: 10, borderLeft: `2px solid ${p.color}33` }}>{d}</p>
           ))}

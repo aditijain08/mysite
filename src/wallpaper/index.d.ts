@@ -45,6 +45,8 @@ export interface ReactiveWallpaperAttributes
   tilt?: 'auto' | 'off'
   /** Degrees of roll for full left-to-right travel (default 20). */
   'tilt-range'?: number | string
+  /** Presence freezes the render loop at the current frame (no reset on resume). */
+  paused?: boolean | string
   onready?: (e: CustomEvent) => void
   onloaded?: (e: CustomEvent<{ loaded: number; total: number }>) => void
   onerror?: (e: CustomEvent<{ message: string }>) => void
